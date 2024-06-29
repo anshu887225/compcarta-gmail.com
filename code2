@@ -85,3 +85,87 @@ int main() {
 
     return 0;
 }
+
+//verilog
+module D_FF(
+    input signed  [7:0]d,
+    input clk,
+    input reset,
+    output reg signed [15:0]q
+    );
+    
+always@(posedge clk or posedge reset) 
+
+begin
+    if(reset==1'b1)
+    q <=1'b0;
+    else
+    q<=d;    
+end 
+endmodule
+
+module FIR_2_ORDER(
+    input clk,
+    input reset,
+    input signed [7:0]X,
+    output reg signed  [15:0]Y
+    );
+    
+    
+    wire signed [15:0] a,b,c ;
+    assign a=16'd10;
+    assign b=16'd44;
+    assign c=16'd10;
+    wire signed  [15:0]m1,m2,m3;
+    wire signed  [7:0]d11,d12;
+    wire signed  [15:0]d1,d2;
+    assign m1= (X*a);
+    D_FF inst1(
+                .clk(clk),
+                .reset(reset),
+                .d(X),
+                .q(d11)
+               );
+   assign m2= (d11*b);
+   assign d1= (m1+m2);
+   D_FF inst2(
+           .clk(clk),
+           .reset(reset),
+           .d(d11),
+           .q(d12)
+          );
+   assign m3= (d12*c);
+   assign d2= (d1+m3); 
+ always @(X)begin 
+ Y <= d2 ;
+ end   
+endmodule
+
+module FIR_1_tb();
+    reg clk,reset;
+    reg signed [7:0]X;
+    wire signed [15:0]Y;
+    
+FIR_2_ORDER uut(
+                    .clk(clk),
+                    .reset(reset),
+                    .X(X),
+                    .Y(Y)
+                );
+
+initial 
+clk=0;
+always #1 clk=~clk;
+
+
+initial begin
+X=2;reset=1'b0;#5;
+X=22;reset=1'b0;#5;
+X=7;reset=1'b0;#5;
+X=27;reset=1'b0;#5;
+X=26;reset=1'b0;#5;
+
+
+
+
+ 
